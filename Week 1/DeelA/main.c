@@ -9,8 +9,13 @@
 
 int main(void)
 {
+	DDRD = 0xFF; // Set PORTD to output
+	PORTD = 0xAA; // Turn some leds on
+	
     while(1)
     {
-        //TODO:: Please write your application code 
+		
     }
+	
+	return 0;
 }
