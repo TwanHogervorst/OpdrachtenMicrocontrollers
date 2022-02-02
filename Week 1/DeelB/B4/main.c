@@ -3,13 +3,14 @@
  *
  * Created: 2/2/2022 1:57:53 PM
  *  Author: twanh
- */ 
+ */
+
+ 
+#define F_CPU 8e6
 
 #include <xc.h>
 #include <avr/io.h>
 #include <util/delay.h>
-
-#define F_CPU 1e6
 
 void wait( int ms )
 {
@@ -29,14 +30,15 @@ int main(void)
 	
     while(1)
     {
-		PORTD = 1 << ledCount;
-		ledCount = (ledCount + 1) % 8;
+		/*PORTD = 1 << ledCount;
+		ledCount = (ledCount + 1) % 8;*/
 		
 		if(PORTD == 0x80)
 			PORTD = 1;
 		else
 			PORTD = PORTD << 1;
 		
-		wait(500);
+		wait(50);
+		
     }
 }
