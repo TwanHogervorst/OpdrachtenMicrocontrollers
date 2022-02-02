@@ -37,17 +37,17 @@ int main(void)
 	
     while(1)
     {
-		//PORTD ^= ((1 << 7) & !(PINC & 0x01));
-		//wait(50);
+		PORTD ^= (1 << 7) & (!PINC & 0x01 << 7);
+		wait(50);
 		
-		if((PINC & 0x01) == 0x00)
-		{
-			PORTD = (PORTD & (1 << 7)) ^ (1 << 7);
-			wait(50);
-		}
-		else
-		{
-			PORTD = 0x00;
-		}
+		//if((PINC & 0x01) == 0x00)
+		//{
+			//PORTD = (PORTD & (1 << 7)) ^ (1 << 7);
+			//wait(50);
+		//}
+		//else
+		//{
+			//PORTD = 0x00;
+		//}
     }
 }
