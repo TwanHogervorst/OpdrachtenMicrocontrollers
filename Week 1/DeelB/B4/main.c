@@ -9,12 +9,12 @@
 #include <avr/io.h>
 #include <util/delay.h>
 
-#define F_CPU 8e6
+#define F_CPU 1e6
 
 void wait( int ms )
 {
 	for (int i=0; i<ms; i++) {
-		_delay_ms( 1 );		// library function (max 30 ms at 8MHz)
+		_delay_ms( 1 );
 	}
 }
 
@@ -23,10 +23,20 @@ int main(void)
 	
 	// Set PortD as output
 	DDRD = 0xFF;
+	PORTD = 0x01;
 	
+	int ledCount = 0;
 	
     while(1)
     {
+		PORTD = 1 << ledCount;
+		ledCount = (ledCount + 1) % 8;
 		
+		if(PORTD == 0x80)
+			PORTD = 1;
+		else
+			PORTD = PORTD << 1;
+		
+		wait(500);
     }
 }
