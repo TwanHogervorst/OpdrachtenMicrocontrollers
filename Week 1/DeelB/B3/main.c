@@ -37,7 +37,7 @@ int main(void)
 	
     while(1)
     {
-		PORTD ^= (1 << 7) & (!PINC & 0x01 << 7);
+		PORTD ^= (1 << 7) & ((!PINC & 0x01) << 7);
 		wait(50);
 		
 		//if((PINC & 0x01) == 0x00)
