@@ -17,7 +17,7 @@ typedef struct {
 } PATTERN_STRUCT;
 
 PATTERN_STRUCT pattern[] = {
-	//  .gfedcba
+	//  .gfedcba  <-- segment names for reference
 	{ 0b00000001, 500}, // Section: Start
 	{ 0b00000010, 500},
 	{ 0b00000100, 500},
