@@ -23,7 +23,7 @@ void wait( int ms )
 int main(void)
 {
 	
-	wait(1000);
+	wait(2000);
 		
     init();
 	
