@@ -5,29 +5,24 @@
  *  Author: twanh
  */ 
 
-#define F_CPU 8e6
-
 #include <avr/io.h>
-#include <util/delay.h>
 #include <string.h>
+#include <avr/interrupt.h>
 
+#include "utils.h"
 #include "lcd.h"
-
-void wait( int ms )
-{
-	for (int i=0; i<ms; i++) {
-		_delay_ms( 1 );
-	}
-}
 
 int main(void)
 {
 	
-	wait(2000);
-		
-    init();
+	lcd_reset();
 	
-	display_text("Welcome!");
+	// Wait for the lcd to reset
+	wait(100);
+		
+    lcd_init();
+	
+	lcd_display_text("Welcome!");
 	
 	char* alphabet = "abcdefghijklmnopqrstuvwxyz";
 	int alphabetLength = 26; // strlen(alphabet);
@@ -39,8 +34,8 @@ int main(void)
 		i = (i + 1) % alphabetLength;
 		textToDisplay[0] = alphabet[i];
 		
-		set_cursor(LCD_LINE_2);
-		display_text(textToDisplay);
+		lcd_set_cursor(LCD_LINE_2);
+		lcd_display_text(textToDisplay);
 		wait(500);
 	}
 }

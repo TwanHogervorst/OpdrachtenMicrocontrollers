@@ -5,18 +5,27 @@
  *  Author: twanh
  */ 
 
-#define F_CPU 8e6
-
-#include <util/delay.h>
 #include <avr/io.h>
 
+#include "utils.h"
 #include "lcd.h"
 
 void lcd_command(unsigned char command);
 void lcd_data(unsigned char data);
 void lcd_write_nibble(unsigned char nibble);
 
-void init() {
+void lcd_reset() {
+	// Pull RST-Pin high
+	PORTA |= 1 << LCD_RST_PIN;
+	wait(100);
+	
+	// Pull RS-Pin low
+	PORTA |= 1 << LCD_RS_PIN;
+	wait(10);
+}
+
+void lcd_init() {
+	// Set ouput
 	DDRA = 0xFF;
 	DDRC = 0xFF;
 	
@@ -24,7 +33,7 @@ void init() {
 	PORTC = 0x00;
 	
 	// Wait for lcd to boot
-	_delay_ms(25);
+	wait(100);
 	
 	// Function Set (use lcd_write_nibble, see documentation of method)
 	//	=> DL: 0 (4-bit), N discard, F discard
@@ -36,10 +45,10 @@ void init() {
 	
 	// Clear display and wait
 	lcd_command(0x01);
-	_delay_ms(10);
+	wait(10);
 	
 	// Set cursor to start
-	set_cursor(0);
+	lcd_set_cursor(0);
 
 	// Display on
 	//  => D: 1 (on), C: 1 (cursor), B: 1 (blink)
@@ -50,16 +59,16 @@ void init() {
 	lcd_command(0x06);
 }
 
-void display_text(char *str) {
+void lcd_display_text(char *str) {
 	for(int i = 0; str[i]; i++) {
 		lcd_data(str[i]);
 	}
 }
 
-void set_cursor(int position) {
+void lcd_set_cursor(int position) {
 	// Set cursor to home and wait (see documentation)
 	lcd_command(0x02);
-	_delay_ms(1);
+	wait(5);
 	
 	while(position--) {
 		lcd_command(0x14);
@@ -97,7 +106,7 @@ void lcd_write_nibble(unsigned char nibble) {
 	PORTC = (0x0F & nibble) << 4;
 	
 	PORTA |= (1 << LCD_E_PIN);
-	_delay_ms(1);
+	wait(2);
 	PORTA &= ~(1 << LCD_E_PIN);
-	_delay_ms(1);
+	wait(2);
 }
