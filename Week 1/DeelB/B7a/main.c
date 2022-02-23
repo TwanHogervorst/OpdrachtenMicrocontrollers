@@ -43,8 +43,8 @@ void wait( int ms )
 }
 
 /* 
-	The state_init, update and start method are for fsm demo purposes.
-	For a real implementation every state would have it's own methods,
+	The state_init, update and start function are for fsm demo purposes.
+	For a real implementation every state would have it's own function,
 	but this makes it easier for a simple demonstration
 */
 void state_init(State* currentState) {
@@ -147,7 +147,8 @@ int main(void)
 	DDRD = 0x00; // PORTD is used for input
 	DDRE = 0xFF; // PORTE is used as output for displaying the state
 	
-	// currentState is first item in list
+	// currentState is first item in list,
+	//   which is the same as the array pointer.
 	State* currentState = stateList;
 	(*currentState->init)(currentState);
 	
@@ -155,12 +156,18 @@ int main(void)
 	State* newState = NULL;
     while (1) 
     {
+		// Call state update function, retrieve StateId
 		newStateId = (*currentState->update)(currentState);
 		
+		// Check if new state
 		if(newStateId != currentState->id) {
+			// Get newState (as pointer)
 			newState = stateList + newStateId;
 			
+			// Call current state exit function
 			(*currentState->exit)(currentState, newState);
+			
+			// Set new state and init
 			currentState = newState;
 			(*currentState->init)(currentState);
 		}
