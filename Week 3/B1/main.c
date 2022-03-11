@@ -14,8 +14,6 @@
 
 char* numCharLookup = "0123456789ABCDEF";
 
-char charnibble_tostr(char num);
-
 int main(void)
 {
 	lcd_reset();
