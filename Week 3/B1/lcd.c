@@ -19,8 +19,8 @@ void lcd_reset() {
 	PORTA |= 1 << LCD_RST_PIN;
 	wait(100);
 	
-	// Pull RS-Pin low
-	PORTA |= 1 << LCD_RS_PIN;
+	// Pull RST-Pin low
+	PORTA &= ~(1 << LCD_RST_PIN);
 	wait(10);
 }
 
@@ -30,6 +30,8 @@ void lcd_init() {
 	
 	PORTA = 0x00;
 	PORTC = 0x00;
+	
+	lcd_reset();
 	
 	// Wait for lcd to boot
 	wait(100);

@@ -16,10 +16,12 @@ char* numCharLookup = "0123456789ABCDEF";
 
 int main(void)
 {
-	lcd_reset();
+		
+	// Initialize registers
+	DDRD &= ~0x80; // DDRD.7 as input, else is output
+	DDRB = 0xFF; // DDRB all output
 	
-	DDRD &= ~0x80;
-	DDRB = 0xFF;
+	// Initialize timer2 as counter, rising edge
 	TCCR2 = 0b00000111;
 	
 	// Wait for LCD to initialize
@@ -34,12 +36,16 @@ int main(void)
 	char counterValue;
 	char* numText = "00";
 	while(1) {
-		lcd_set_cursor(LCD_LINE_2 + 2);
+		// Update counterValue
+		// Update PORTB for debug reasons
 		counterValue = PORTB = TCNT2;
 		
+		// Get hexadecimal string
 		numText[0] = numCharLookup[(counterValue >> 4) & 0x0F];
 		numText[1] = numCharLookup[counterValue & 0x0F];
 		
+		// Show on lcd
+		lcd_set_cursor(LCD_LINE_2 + 2);
 		lcd_display_text(numText);
 		
 		wait(50);
