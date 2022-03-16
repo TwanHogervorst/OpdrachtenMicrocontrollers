@@ -56,12 +56,15 @@ int main(void)
 	DDRB = 0xFF;
 	adcInit(false);
 	
-	short test = 0;
-	
     while (1) 
     {
-		test = adcPull();
-		PORTB = test & 0xFF;
+		// B2
+		//PORTB = ADCL;
+		//PORTA = ADCH;
+		
+		// B3
+		PORTB = adcPull() & 0xFF;
+		
 		wait(100);
     }
 }
