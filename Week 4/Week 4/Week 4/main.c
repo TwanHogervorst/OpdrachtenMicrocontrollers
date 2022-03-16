@@ -10,6 +10,8 @@
 
 #include <util/delay.h>
 
+#include <stdbool.h>
+
 void wait( int ms )
 {
 	for (int i=0; i<ms; i++) {
@@ -17,13 +19,33 @@ void wait( int ms )
 	}
 }
 
-void adcInit( void )
+void adcInit(bool freeRunMode)
 {
 	//REFS1 REFS0 ADLAR MUX4 MUX3 MUX2 MUX1 MUX0
 	ADMUX = 0b01100001; //result left adjusted, channel 1 selected, AVCC
 	
 	//ADEN ADSC ADFR ADIF ADIE ADPS2 ADPS1 ADPS0
-	ADCSRA = 0b11100110;
+	if(freeRunMode) {
+		ADCSRA = 0b11100110;
+	}
+	else {
+		ADCSRA = 0b10000110;
+	}
+	
+}
+
+short adcPull(void) {
+	short result = 0;
+	
+	ADCSRA |= 0b01000000;
+	
+	while(ADCSRA & 0b01000000) {
+		wait(1);
+	}
+	
+	result = ((ADCL & 0b11000000) >> 6) | (ADCH << 2);
+	
+	return result;
 }
 
 
@@ -32,12 +54,14 @@ int main(void)
 	DDRF = 0x00;
 	DDRA = 0xFF;
 	DDRB = 0xFF;
-	adcInit();
+	adcInit(false);
+	
+	short test = 0;
 	
     while (1) 
     {
-		PORTB = ADCL;
-		PORTA = ADCH;
+		test = adcPull();
+		PORTB = test & 0xFF;
 		wait(100);
     }
 }
