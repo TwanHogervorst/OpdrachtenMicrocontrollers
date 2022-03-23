@@ -10,7 +10,7 @@
 
 #include <util/delay.h>
 
-#include <stdbool.h>
+#define ADC_START_CONVERSION 0b01000000
 
 void wait( int ms )
 {
@@ -19,33 +19,42 @@ void wait( int ms )
 	}
 }
 
-void adcInit(bool freeRunMode)
+void adcInit()
 {
+	
 	//REFS1 REFS0 ADLAR MUX4 MUX3 MUX2 MUX1 MUX0
-	ADMUX = 0b01100001; //result left adjusted, channel 1 selected, AVCC
+	ADMUX = 0b01100011; //result left adjusted, channel 3 selected, AVCC
 	
 	//ADEN ADSC ADFR ADIF ADIE ADPS2 ADPS1 ADPS0
-	if(freeRunMode) {
-		ADCSRA = 0b11100110;
-	}
-	else {
-		ADCSRA = 0b10000110;
-	}
+	ADCSRA = 0b10000110;
 	
 }
 
-short adcPull(void) {
-	short result = 0;
+// 16 bit
+//short adcPull(void) {
+	//short result = 0;
+	//
+	//ADCSRA |= ADC_START_CONVERSION;
+	//
+	//while(ADCSRA & 0b01000000) {
+		//wait(1);
+	//}
+	//
+	//result = ((ADCL & 0b11000000) >> 6) | (ADCH << 2);
+	//
+	//return result;
+//}
+
+char adcPull(void) {
+	ADCSRA |= ADC_START_CONVERSION;
 	
-	ADCSRA |= 0b01000000;
-	
-	while(ADCSRA & 0b01000000) {
+	// Wait for conversion to finish => ADCSRA == 0bx0xxxxxx
+	//     => ADCSRA & ADC_START_CONVERSION
+	while(ADCSRA & ADC_START_CONVERSION) {
 		wait(1);
 	}
 	
-	result = ((ADCL & 0b11000000) >> 6) | (ADCH << 2);
-	
-	return result;
+	return ADCH;
 }
 
 
@@ -54,12 +63,11 @@ int main(void)
 	DDRF = 0x00;
 	DDRB = 0xFF;
 	
-	adcInit(false);
+	adcInit();
 	
     while (1) 
     {
-		// B3
-		PORTB = adcPull() & 0xFF;
+		PORTB = adcPull();
 		
 		wait(100);
     }
