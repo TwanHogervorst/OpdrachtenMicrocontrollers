@@ -5,12 +5,18 @@
  *  Author: twanh
  */ 
 
+#include <stdbool.h>
+#include <math.h>
+
+#include "common.h"
 #include "spi.h"
 
 #include "serialSevenSegmentsDisplay.h"
 
 void displayDriverInit()
 {
+	spi_writeWord(0x00, 0x00);
+	
 	// Register Decode Mode -> 0xFF (BCD mode for all digits)
 	spi_writeWord(0x09, 0xFF);
 
@@ -34,4 +40,33 @@ void displayOn()
 void displayOff()
 {
 	spi_writeWord(0x0C, 0x00); // Shutdown Register -> 0 (Display Off)
+}
+
+// toont de waarde van value op het 4-digit display
+void writeLedDisplay(int value) {
+	bool isNegative = value < 0;
+	
+	value = abs(value);
+	
+	char thousends = 0;
+	if(!isNegative) {
+		char thousends = value / 1000;
+		value = value - (thousends * 1000);
+	}
+	
+	char hundreds = value / 100;
+	
+	value = value - (hundreds * 100);
+	char tens = value / 10;
+	
+	char ones = value - (tens * 10);
+	
+	spi_writeWord(1, ones);
+	spi_writeWord(2, tens);
+	spi_writeWord(3, hundreds);
+	
+	if(isNegative)
+		spi_writeWord(4, 0x0A /* '-' */);
+	else 
+		spi_writeWord(4, thousends);
 }

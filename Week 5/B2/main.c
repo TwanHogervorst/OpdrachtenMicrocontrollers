@@ -25,14 +25,17 @@ int main(void)
     }
     wait(1000);
 
-    // write 4-digit data
-    for (char i = 1; i <= 4; i++)
-    {
-	    spi_writeWord(i, i); // Write number to show to digit
-	    
-	    wait(1000);
-    }
-    wait(1000);
+    //// write 4-digit data
+    //for (char i = 1; i <= 4; i++)
+    //{
+	    //spi_writeWord(i, i); // Write number to show to digit
+	    //
+	    //wait(1000);
+    //}
+    //wait(1000);
+	
+	//writeLedDisplay(6942);
+	writeLedDisplay(-420);
 
     return (1);
 }

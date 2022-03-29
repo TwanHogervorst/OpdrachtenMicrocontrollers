@@ -14,4 +14,6 @@ void displayDriverInit();
 void displayOn();
 void displayOff();
 
+void writeLedDisplay(int value);
+
 #endif /* SERIALSEVENSEGMENTSDISPLAY_H_ */

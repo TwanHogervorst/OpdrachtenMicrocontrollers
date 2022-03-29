@@ -13,4 +13,8 @@
 
 void wait(int ms);
 
+char* numberSplit(int value, char tens);
+
+int powi(int x, unsigned int y);
+
 #endif /* COMMON_H_ */
