@@ -14,9 +14,9 @@
 #define LCD_RS_PIN 4
 #define LCD_RST_PIN 7
 
-void lcd_command(unsigned char command);
-void lcd_data(unsigned char data);
-void lcd_write_nibble(unsigned char nibble);
+static void lcd_command(unsigned char command);
+static void lcd_data(unsigned char data);
+static void lcd_write_nibble(unsigned char nibble);
 
 void lcd_reset() {
 	// Pull RST-Pin high
@@ -80,7 +80,7 @@ void lcd_set_cursor(int position) {
 	}
 }
 
-void lcd_command(unsigned char command) {
+static void lcd_command(unsigned char command) {
 	// Pull RS-Pin low
 	PORTA &= ~(1 << LCD_RS_PIN);
 	
@@ -90,7 +90,7 @@ void lcd_command(unsigned char command) {
 	lcd_write_nibble(command);
 }
 
-void lcd_data(unsigned char data) {
+static void lcd_data(unsigned char data) {
 	// Pull RS-Pin high
 	PORTA |= 1 << LCD_RS_PIN;
 	
@@ -107,7 +107,7 @@ void lcd_data(unsigned char data) {
  * 
  * \return void
  */
-void lcd_write_nibble(unsigned char nibble) {
+static void lcd_write_nibble(unsigned char nibble) {
 	PORTC = (0x0F & nibble) << 4;
 	
 	PORTA |= (1 << LCD_E_PIN);

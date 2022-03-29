@@ -125,10 +125,22 @@
     <Compile Include="include\lcd.h">
       <SubType>compile</SubType>
     </Compile>
+    <Compile Include="include\serial_seven_segment.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="include\spi.h">
+      <SubType>compile</SubType>
+    </Compile>
     <Compile Include="include\utils.h">
       <SubType>compile</SubType>
     </Compile>
     <Compile Include="lcd.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="serial_seven_segment.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="spi.c">
       <SubType>compile</SubType>
     </Compile>
     <Compile Include="utils.c">
