@@ -5,14 +5,13 @@
  * Author : Luuk Verhagen
  */ 
 
-#define F_CPU 8e6
+#define F_CPU 10e6
 #include <avr/io.h>
 #include <util/delay.h>
 #include <avr/interrupt.h>
 #define BIT(x) (1 << x)
 
-int TimerPreset = -313;
-int TimerCompare = -313+117;
+int isOn = 1;
 
 void wait( int ms ) {
 	for (int i=0; i<ms; i++) {
@@ -20,30 +19,29 @@ void wait( int ms ) {
 	}
 }
 
-ISR( TIMER2_OVF_vect ) {
-	TCNT2 = TimerPreset;	// Preset value
-	PORTD |= BIT(7);
-}
-
 ISR( TIMER2_COMP_vect ){
-	PORTD &= ~BIT(7);
+	//TCNT2 = 0;
+	OCR2 = isOn ? 244 : 146; // 25ms : 15ms
+	PORTD = (!isOn) << 7;
+	isOn = !isOn;
 }
 
 // Initialize timer2
 void timer2Init( void ) {
-	TCNT2 = TimerPreset;	// Preset value of counter 2
-	OCR2 = TimerCompare;
-	TIMSK |= BIT(6);		// T2 overflow interrupt enable
-	TIMSK |= BIT(7);		// T2 overflow interrupt enable
+	//TCNT2 = 0;
+	OCR2 = 146;
+	//TIMSK |= BIT(6);		// T2 overflow interrupt enable
+	TIMSK |= BIT(7);		// T2 compare interrupt enable
 	sei();				// turn_on intr all
-	TCCR2 = 0b00010101;		
+	TCCR2 = 0b00001101;		
 }
+
 
 
 
 int main(void)
 {
-	DDRD &= BIT(7);
+	DDRD |= BIT(7);
 	
 	timer2Init();
 	

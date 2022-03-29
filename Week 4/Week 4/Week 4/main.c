@@ -1,5 +1,4 @@
 /*
- * Week 4.c
  *
  * Created: 16-3-2022 11:58:02
  * Author : Luuk Verhagen

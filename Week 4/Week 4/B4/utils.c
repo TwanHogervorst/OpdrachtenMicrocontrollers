@@ -1,14 +1,13 @@
 /*
  * utils.c
  *
- * Created: 29-3-2022 12:46:04
+ * Created: 16-2-2022 10:56:58
  *  Author: twanh
  */ 
 
-#define F_CPU 10e6
-#include <util/delay.h>
+#define F_CPU 8e6
 
-#include "utils.h"
+#include <util/delay.h>
 
 void wait( int ms )
 {
