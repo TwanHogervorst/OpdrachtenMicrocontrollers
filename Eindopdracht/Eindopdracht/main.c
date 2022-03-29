@@ -5,8 +5,9 @@
  * Author : twanh
  */ 
 
-#include <avr/io.h>
+#define F_CPU 8e6
 
+#include <avr/io.h>
 
 int main(void)
 {
