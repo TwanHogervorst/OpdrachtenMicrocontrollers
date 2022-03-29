@@ -5,7 +5,7 @@
  *  Author: twanh
  */ 
 
-#define F_CPU 8e6
+#define F_CPU 10e6
 #include <util/delay.h>
 
 #include "utils.h"
