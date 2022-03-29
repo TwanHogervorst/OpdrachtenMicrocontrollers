@@ -16,15 +16,15 @@ void wait( int ms )
 	}
 }
 
-void adcInit( void )
+void adcInit()
 {
 	//REFS1 REFS0 ADLAR MUX4 MUX3 MUX2 MUX1 MUX0
 	ADMUX = 0b01100001; //result left adjusted, channel 1 selected, AVCC
 	
 	//ADEN ADSC ADFR ADIF ADIE ADPS2 ADPS1 ADPS0
 	ADCSRA = 0b11100110;
+	
 }
-
 
 int main(void)
 {

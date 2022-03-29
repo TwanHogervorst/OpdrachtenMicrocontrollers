@@ -5,6 +5,8 @@ VisualStudioVersion = 14.0.23107.0
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{54F91283-7BC4-4236-8FF9-10F437C3AD48}") = "B1 en B2", "Week 4\B1 en B2.cproj", "{DCE6C7E3-EE26-4D79-826B-08594B9AD897}"
 EndProject
+Project("{54F91283-7BC4-4236-8FF9-10F437C3AD48}") = "B3", "B3\B3.cproj", "{DC565941-A1E1-433F-BEC5-B6E2F10144C7}"
+EndProject
 Project("{54F91283-7BC4-4236-8FF9-10F437C3AD48}") = "B4", "B4\B4.cproj", "{D1128026-941F-4DA2-91C1-616BCF29323C}"
 EndProject
 Global
@@ -21,6 +23,10 @@ Global
 		{D1128026-941F-4DA2-91C1-616BCF29323C}.Debug|AVR.Build.0 = Debug|AVR
 		{D1128026-941F-4DA2-91C1-616BCF29323C}.Release|AVR.ActiveCfg = Release|AVR
 		{D1128026-941F-4DA2-91C1-616BCF29323C}.Release|AVR.Build.0 = Release|AVR
+		{DC565941-A1E1-433F-BEC5-B6E2F10144C7}.Debug|AVR.ActiveCfg = Debug|AVR
+		{DC565941-A1E1-433F-BEC5-B6E2F10144C7}.Debug|AVR.Build.0 = Debug|AVR
+		{DC565941-A1E1-433F-BEC5-B6E2F10144C7}.Release|AVR.ActiveCfg = Release|AVR
+		{DC565941-A1E1-433F-BEC5-B6E2F10144C7}.Release|AVR.Build.0 = Release|AVR
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
