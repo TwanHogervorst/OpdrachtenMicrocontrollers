@@ -6,7 +6,7 @@
  */ 
 
 #include <stdbool.h>
-#include <math.h>
+#include <stdlib.h>
 
 #include "spi.h"
 
@@ -40,13 +40,14 @@ void sss_display_off() {
 }
 
 void sss_write(int value) {
-	bool isNegative = value < 0;
+	
+	char isNegative = value < 0;
 	
 	value = abs(value);
 	
 	char thousends = 0;
 	if(!isNegative) {
-		char thousends = value / 1000;
+		thousends = value / 1000;
 		value = value - (thousends * 1000);
 	}
 	
@@ -61,8 +62,11 @@ void sss_write(int value) {
 	spi_write_word(SSS_SLAVE_PORT, 2, tens);
 	spi_write_word(SSS_SLAVE_PORT, 3, hundreds);
 	
-	if(isNegative)
+	if (isNegative) 
+	{
 		spi_write_word(SSS_SLAVE_PORT, 4, 0x0A /* '-' */);
-	else
+	}
+	else {
 		spi_write_word(SSS_SLAVE_PORT, 4, thousends);
+	}
 }
