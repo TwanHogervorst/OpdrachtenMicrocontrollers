@@ -116,8 +116,8 @@ int main(void)
 		PORTE |= BIT(1);
 		
 		data[0] = 0;
-		data[1] = brightness;
-		data[2] = 0;
+		data[1] = mfader_get_position(mainFader);
+		data[5] = mfader_get_position(secondFader);
 		
 		is_sending = 1;
 		uart_start_tx();
@@ -129,7 +129,7 @@ int main(void)
 		is_sending = 0;
 		//brightness = (brightness+10 % 256);
 		
-		wait(100);
+		wait(50);
     }
 	
 	mfader_destroy(mainFader);
