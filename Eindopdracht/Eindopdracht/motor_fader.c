@@ -111,7 +111,7 @@ ISR(ADC_vect) {
 
 void mfader_init_pwm() {
 	// PWM-8bit
-	TCCR3A = 0b00101001;
+	TCCR3A = 0b00000001;
 	
 	// Prescaler clk/256, fast PWM
 	TCCR3B = 0b00001100;
@@ -132,17 +132,17 @@ mfader_handle_t mfader_init(int faderIndex, char adcChannel, int positivePin, in
 	result->compRegister = compRegister;
 	
 	// Enable compare register
-	//switch(result->compRegister) {
-		//case COMPA:
-			//TCCR3A |= BIT(7);
-			//break;
-		//case COMPB:
-			//TCCR3A |= BIT(5);
-			//break;
-		//case COMPC:
-			//TCCR3A |= BIT(3);
-			//break;
-	//}
+	switch(result->compRegister) {
+		case COMPA:
+			TCCR3A |= BIT(7);
+			break;
+		case COMPB:
+			TCCR3A |= BIT(5);
+			break;
+		case COMPC:
+			TCCR3A |= BIT(3);
+			break;
+	}
 	
 	adc_disable_irs();
 	
@@ -162,6 +162,8 @@ mfader_handle_t mfader_init(int faderIndex, char adcChannel, int positivePin, in
 void mfader_destroy(mfader_handle_t* fader) {
 	if(fader && *fader) {
 		faderList[(*fader)->faderIndex] = NULL;
+		
+		mfader_stop_set_pos(fader);
 		
 		free(*fader);
 		*fader = NULL;

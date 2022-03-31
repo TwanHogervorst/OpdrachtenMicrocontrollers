@@ -127,9 +127,12 @@ int main(void)
 			wait(1);
 		}
 		is_sending = 0;
-		brightness = (brightness+10 % 256);
+		//brightness = (brightness+10 % 256);
 		
 		wait(100);
     }
+	
+	mfader_destroy(mainFader);
+	mfader_destroy(secondFader);
 }
 
