@@ -163,7 +163,7 @@ void mfader_destroy(mfader_handle_t* fader) {
 	if(fader && *fader) {
 		faderList[(*fader)->faderIndex] = NULL;
 		
-		mfader_stop_set_pos(fader);
+		mfader_stop_set_pos(*fader);
 		
 		free(*fader);
 		*fader = NULL;
@@ -220,6 +220,13 @@ void mfader_set_position(mfader_handle_t fader, char pos) {
 	}
 	
 	fader->updateDirection = fader->targetPos > fader->currentPos;
+}
+
+bool mfader_is_moving(mfader_handle_t fader) {
+	if(fader == NULL) 
+		return false;
+		
+	return fader->updatePos;
 }
 
 static void mfader_set_speed(mfader_handle_t fader, char speed) {

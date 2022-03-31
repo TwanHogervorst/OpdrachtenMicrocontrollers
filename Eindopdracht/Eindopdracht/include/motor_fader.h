@@ -23,4 +23,6 @@ char mfader_get_position(mfader_handle_t fader);
 
 void mfader_set_position(mfader_handle_t fader, char pos);
 
+bool mfader_is_moving(mfader_handle_t fader);
+
 #endif /* MOTOR_FADER_H_ */
