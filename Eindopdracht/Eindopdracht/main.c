@@ -8,6 +8,7 @@
 #define F_CPU 10e6
 #define SSS_SLAVE_PORT 0
 
+#include <stdlib.h>
 #include <stdbool.h>
 
 #include <avr/io.h>
@@ -21,6 +22,7 @@
 
 int main(void)
 {
+	DDRA = 0x00;
 	
 	DDRE = 0xFF;
 	DDRF = 0x00;
@@ -37,37 +39,23 @@ int main(void)
 	mfader_handle_t mainFader = mfader_init(0, 0, 3, 4);
 	adc_start_conversion();
 	
-	char positions[] = {
-		0,
-		64,
-		128,
-		192,
-		255,
-		98,
-		160
-	};
+	mfader_init_pwm();
 	
-	int positionsLength = sizeof(positions) / sizeof(positions[0]);
-	int i = 0;
-	
-	int msCount = 0;
+	char currPos = 0;
+	char savePosition = 0;
 	while(1) {
-		mfader_update();
+		currPos = mfader_get_position(mainFader);
 		
-		sss_write(mfader_get_position(mainFader));
+		sss_write(mfader_get_raw_position(mainFader));
 		
-		msCount++;
-		if(msCount > 1000) {
-			msCount = 0;
-			mfader_set_position(mainFader, positions[i]);
-			i++;
-			
-			if(i >= positionsLength) {
-				i = 0;
-			}
+		if(PINA & BIT(6)) {
+			savePosition = currPos;
+		}
+		if(PINA & BIT(7)) {
+			mfader_set_position(mainFader, savePosition);
 		}
 		
-		wait(1);
+		wait(50);
 	}
 }
 

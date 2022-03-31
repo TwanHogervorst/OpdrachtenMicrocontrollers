@@ -18,7 +18,9 @@
 #define FADER_PORT PORTE
 
 #define FADER_COUNT 2
-#define FADER_MAX_ERROR 2
+#define FADER_MAX_ERROR 1
+
+#define FADER_BREAK_DISTANCE 40
 
 typedef enum { POSITIVE, NEGATIVE } mfader_direction_t;
 
@@ -60,6 +62,19 @@ ISR(ADC_vect) {
 			if(fader->currentPos >= (fader->targetPos - FADER_MAX_ERROR) && fader->currentPos <= (fader->targetPos + FADER_MAX_ERROR)) {
 				mfader_stop_set_pos(fader);
 			}
+			else if(fader->currentPos > fader->targetPos) {
+				mfader_move_back(fader);
+			}
+			else if(fader->currentPos < fader->targetPos) {
+				mfader_move_forward(fader);
+			}
+			
+			if(abs(fader->currentPos - fader->targetPos) <= FADER_BREAK_DISTANCE) {
+				mfader_set_speed(100);
+			}
+			else {
+				mfader_set_speed(190);
+			}
 		}
 	}
 	
@@ -73,6 +88,14 @@ ISR(ADC_vect) {
 	// Start a new conversion
 	adc_start_conversion();
 	
+}
+
+void mfader_init_pwm() {
+	// OCR3C enable, PWM-8bit
+	TCCR3A = 0b00001001;
+	
+	// Prescaler clk/256, fast PWM
+	TCCR3B = 0b00001100;
 }
 
 mfader_handle_t mfader_init(int faderIndex, char adcChannel, int positivePin, int negativePin) {
@@ -110,7 +133,17 @@ void mfader_destroy(mfader_handle_t* fader) {
 	}
 }
 
+short mfader_get_raw_position(mfader_handle_t fader) {
+	if(fader == NULL)
+		return 0;
+		
+	return fader->currentPos;
+}
+
 char mfader_get_position(mfader_handle_t fader) {
+	if(fader == NULL) 
+		return 0;
+		
 	char result = 0;
 	
 	// The fader has a ramp-up at the end
@@ -148,32 +181,6 @@ void mfader_set_position(mfader_handle_t fader, char pos) {
 	else {
 		fader->targetPos = (short) map(pos, 193, 255, 658, 970);
 	}
-}
-
-void mfader_update() {
-	
-	for (int i = 0; i < FADER_COUNT; i++) {
-		mfader_handle_t fader = faderList[i];
-		
-		if(fader == NULL)
-			continue;
-		
-		// Check if position is being set/updated
-		if(fader->updatePos) {
-			
-			if(fader->currentPos >= (fader->targetPos - FADER_MAX_ERROR) && fader->currentPos <= (fader->targetPos + FADER_MAX_ERROR)) {
-				mfader_stop_set_pos(fader);
-			}
-			else if(fader->currentPos > fader->targetPos) {
-				mfader_move_back(fader);
-			}
-			else if(fader->currentPos < fader->targetPos) {
-				mfader_move_forward(fader);
-			}
-			
-		}
-	}
-	
 }
 
 static void mfader_stop_set_pos(mfader_handle_t fader) {
