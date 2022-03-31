@@ -22,12 +22,41 @@
 #include "serial_seven_segment.h"
 #include "dmx.h"
 
+int mainChannel = 0;
+int secondChannel = 0;
+
+ISR( INT0_vect ) {
+	mainChannel = bound(mainChannel + 1, 0, 3);
+}
+
+ISR( INT1_vect ) {
+	mainChannel = bound(mainChannel - 1, 0, 3);
+}
+
+ISR( INT2_vect ) {
+	secondChannel = bound(secondChannel + 1, 0, 3);
+}
+
+ISR( INT3_vect ) {
+	secondChannel = bound(secondChannel - 1, 0, 3);
+}
+
 int main(void)
 {
 	DDRA = 0x00;
 	
+	DDRD = 0xF0;
+	
 	DDRE = 0xFF;
 	DDRF = 0x00;
+	
+	EICRA = 0b10101010;
+	EIMSK = 0x0F;
+	
+	spi_master_init();
+	sss_display_driver_init();
+	
+	sss_write(0);
 	
 	adc_init_pull();
 	adc_enable_irs();
@@ -44,10 +73,27 @@ int main(void)
 	
 	adc_start_conversion();
 	
+	int prevMainChannel = -1;
+	int prevSecondChannel = -1;
     while (1) 
     {
-		dmx_set(2, mfader_get_position(mainFader));
-		dmx_set(3, mfader_get_position(secondFader));
+		if(prevMainChannel != mainChannel) {
+			mfader_set_position(mainFader, dmx_get(1 + mainChannel));
+			prevMainChannel = mainChannel;
+		}
+		
+		if(prevSecondChannel != secondChannel) {
+			mfader_set_position(secondFader, dmx_get(5 + secondChannel));
+			prevSecondChannel = secondChannel;
+		}
+		
+		sss_write(mainChannel * 100 + secondChannel);
+		
+		if(!mfader_is_moving(mainFader))
+			dmx_set(1 + mainChannel, mfader_get_position(mainFader));
+		
+		if(!mfader_is_moving(secondFader))
+			dmx_set(5 + secondChannel, mfader_get_position(secondFader));
 		
 		dmx_start_send();
 		
