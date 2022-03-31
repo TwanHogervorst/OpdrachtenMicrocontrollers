@@ -37,23 +37,34 @@ int main(void)
 	mfader_handle_t mainFader = mfader_init(0, 0, 3, 4);
 	adc_start_conversion();
 	
-	//mfader_set_position(mainFader, 128);
+	char positions[] = {
+		0,
+		64,
+		128,
+		192,
+		255,
+		98,
+		160
+	};
 	
-	bool setIsRun = false;
+	int positionsLength = sizeof(positions) / sizeof(positions[0]);
+	int i = 0;
+	
 	int msCount = 0;
 	while(1) {
 		mfader_update();
 		
 		sss_write(mfader_get_position(mainFader));
 		
-		if(!setIsRun) {
-			msCount++;
-			if(msCount > 1000) {
-				setIsRun = true;
-				mfader_set_position(mainFader, 160);
-				//mfader_set_position(mainFader, mfader_get_position(mainFader) + 50);
-			}
+		msCount++;
+		if(msCount > 1000) {
+			msCount = 0;
+			mfader_set_position(mainFader, positions[i]);
+			i++;
 			
+			if(i >= positionsLength) {
+				i = 0;
+			}
 		}
 		
 		wait(1);

@@ -16,3 +16,16 @@ void wait( int ms )
 		_delay_ms( 1 );
 	}
 }
+
+double bound(double value, double min, double max) {
+	if(value > max)
+		value = max;
+	else if(value < min)
+		value = min;
+		
+	return value;
+}
+
+double map(double value, double start1, double stop1, double start2, double stop2) {
+	 return (value - start1) / (stop1 - start1) * (stop2 - start2) + start2;
+}
