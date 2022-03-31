@@ -32,6 +32,7 @@ struct mfader_conf {
 	char adcChannel;
 	char positivePin;
 	char negativePin;
+	mfader_comp_reg compRegister;
 	short currentPos;
 	short previousPos;
 	bool updatePos;
@@ -45,6 +46,7 @@ static mfader_handle_t faderList[] = {
 };
 static int faderListIsrIndex = 0;
 
+static void mfader_set_speed(mfader_handle_t fader, char speed);
 
 static void mfader_stop_set_pos(mfader_handle_t fader);
 
@@ -82,10 +84,10 @@ ISR(ADC_vect) {
 			}
 			
 			if(abs(fader->currentPos - fader->targetPos) <= FADER_BREAK_DISTANCE) {
-				mfader_set_speed(100);
+				mfader_set_speed(fader, 100);
 			}
 			else {
-				mfader_set_speed(190);
+				mfader_set_speed(fader, 190);
 			}
 		}
 		
@@ -108,14 +110,14 @@ ISR(ADC_vect) {
 }
 
 void mfader_init_pwm() {
-	// OCR3C enable, PWM-8bit
-	TCCR3A = 0b00001001;
+	// PWM-8bit
+	TCCR3A = 0b00101001;
 	
 	// Prescaler clk/256, fast PWM
 	TCCR3B = 0b00001100;
 }
 
-mfader_handle_t mfader_init(int faderIndex, char adcChannel, int positivePin, int negativePin) {
+mfader_handle_t mfader_init(int faderIndex, char adcChannel, int positivePin, int negativePin, mfader_comp_reg compRegister) {
 	mfader_handle_t result = NULL;
 	
 	result = (mfader_handle_t) malloc(sizeof(mfader_conf_t));
@@ -127,6 +129,20 @@ mfader_handle_t mfader_init(int faderIndex, char adcChannel, int positivePin, in
 	result->adcChannel = adcChannel;
 	result->positivePin = positivePin;
 	result->negativePin = negativePin;
+	result->compRegister = compRegister;
+	
+	// Enable compare register
+	//switch(result->compRegister) {
+		//case COMPA:
+			//TCCR3A |= BIT(7);
+			//break;
+		//case COMPB:
+			//TCCR3A |= BIT(5);
+			//break;
+		//case COMPC:
+			//TCCR3A |= BIT(3);
+			//break;
+	//}
 	
 	adc_disable_irs();
 	
@@ -202,6 +218,20 @@ void mfader_set_position(mfader_handle_t fader, char pos) {
 	}
 	
 	fader->updateDirection = fader->targetPos > fader->currentPos;
+}
+
+static void mfader_set_speed(mfader_handle_t fader, char speed) {
+	switch(fader->compRegister) {
+		case COMPA:
+			OCR3A = speed;
+			break;
+		case COMPB:
+			OCR3B = speed;
+			break;
+		case COMPC:
+			OCR3C = speed;
+			break;
+	}
 }
 
 static void mfader_stop_set_pos(mfader_handle_t fader) {

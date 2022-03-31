@@ -35,27 +35,37 @@ int main(void)
 	adc_init_pull();
 	adc_enable_irs();
 	
-	//Initialize fader 0 on adc-channel zero, positive pin PORTE.3, negative pin PORTE.4
-	mfader_handle_t mainFader = mfader_init(0, 0, 3, 4);
+	//Initialize fader 0 on adc-channel zero, positive pin PORTE.2, negative pin PORTE.3
+	mfader_handle_t mainFader = mfader_init(0, 0, 2, 3, COMPB);
+	
+	//Initialize fader 1 on adc-channel zero, positive pin PORTE.2, negative pin PORTE.3
+	mfader_handle_t secondFader = mfader_init(1, 1, 6, 7, COMPC);
+	
 	adc_start_conversion();
 	
 	mfader_init_pwm();
 	
-	char currPos = 0;
-	char savePosition = 0;
+	char mainCurrPos = 0;
+	char mainSavePosition = 0;
+	
+	char secondCurrPos = 0;
+	char secondSavePosition = 0;
+	
 	while(1) {
-		currPos = mfader_get_position(mainFader);
 		
-		sss_write(mfader_get_position(mainFader));
+		mainCurrPos = mfader_get_position(mainFader);
+		secondCurrPos = mfader_get_position(secondFader);
 		
 		if(PINA & BIT(6)) {
-			savePosition = currPos;
+			mainSavePosition = mainCurrPos;
+			secondSavePosition = secondCurrPos;
 		}
 		if(PINA & BIT(7)) {
-			mfader_set_position(mainFader, savePosition);
+			mfader_set_position(mainFader, mainSavePosition);
+			mfader_set_position(secondFader, secondSavePosition);
 		}
 		
-		wait(50);
+		wait(10);
 	}
 }
 

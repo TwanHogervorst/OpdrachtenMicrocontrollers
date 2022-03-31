@@ -11,16 +11,16 @@
 
 typedef struct mfader_conf* mfader_handle_t;
 
+typedef enum { COMPA, COMPB, COMPC } mfader_comp_reg;
+
 void mfader_init_pwm();
 
-mfader_handle_t mfader_init(int faderIndex, char adcChannel, int positivePin, int negativePin);
+mfader_handle_t mfader_init(int faderIndex, char adcChannel, int positivePin, int negativePin, mfader_comp_reg compRegister);
 void mfader_destroy(mfader_handle_t* fader);
 
 short mfader_get_raw_position(mfader_handle_t fader);
 char mfader_get_position(mfader_handle_t fader);
 
 void mfader_set_position(mfader_handle_t fader, char pos);
-
-#define mfader_set_speed(speed) OCR3C = speed;
 
 #endif /* MOTOR_FADER_H_ */
