@@ -17,7 +17,7 @@ void wait( int ms )
 	}
 }
 
-double bound(double value, double min, double max) {
+int bound(int value, int min, int max) {
 	if(value > max)
 		value = max;
 	else if(value < min)

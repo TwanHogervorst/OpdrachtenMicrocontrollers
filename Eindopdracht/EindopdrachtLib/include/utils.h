@@ -13,7 +13,7 @@
 
 void wait(int ms);
 
-double bound(double value, double min, double max);
+int bound(int value, int min, int max);
 
 double map(double value, double start1, double stop1, double start2, double stop2);
 
