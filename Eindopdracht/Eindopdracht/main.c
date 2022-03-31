@@ -46,7 +46,7 @@ int main(void)
 	while(1) {
 		currPos = mfader_get_position(mainFader);
 		
-		sss_write(mfader_get_raw_position(mainFader));
+		sss_write(mfader_get_position(mainFader));
 		
 		if(PINA & BIT(6)) {
 			savePosition = currPos;
