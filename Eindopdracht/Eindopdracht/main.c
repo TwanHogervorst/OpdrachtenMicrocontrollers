@@ -9,11 +9,19 @@
 
 #include <avr/io.h>
 #include <util/delay.h>
+#include <avr/interrupt.h>
 #include "utils.h"
+#include <stdio.h>
+#include <stdlib.h>
 
 #define UART0BAUD 250000 // Baud rate USART0
 #define MYUBRR F_CPU/16/UART0BAUD - 1 // my USART Baud Rate Register
 #define MYHSUBRR F_CPU/8/UART0BAUD - 1
+
+volatile static char data[513];
+//volatile unsigned char* data;
+volatile int data_index = 0;
+volatile int is_sending = 0;
 
 void usart0_init( void ) // initialize USART0 - receive/transmit
 {
@@ -27,12 +35,22 @@ void usart0_init( void ) // initialize USART0 - receive/transmit
 
 void uart_start_tx()
 {
-	UCSR0B |= BIT(TXEN);
+	UCSR0B |= BIT(TXEN0);
 }
 
 void uart_stop_tx()
 {
-	UCSR0B &= ~BIT(TXEN);
+	UCSR0B &= ~BIT(TXEN0);
+}
+
+void uart_enable_empty_tx_buffer_interrupt()
+{
+	UCSR0B |= BIT(UDRIE0);
+}
+
+void uart_disable_empty_tx_buffer_interrupt()
+{
+	UCSR0B &= ~BIT(UDRIE0);
 }
 
 void uart_send_char(char ch)
@@ -41,48 +59,54 @@ void uart_send_char(char ch)
 	UDR0 = ch;
 }
 
+ISR(USART0_UDRE_vect)
+{
+	if(!is_sending)
+	{
+		return;
+	}
+	
+	UDR0 = data[data_index++];
+	
+	if(data_index > 512)
+	{
+		uart_disable_empty_tx_buffer_interrupt();
+		uart_stop_tx();
+		data_index = 0;
+		is_sending = 0;
+	}
+}
+
 int main(void)
 {
 	DDRE |= BIT(1);
 	
 	usart0_init();
+	sei();
     /* Replace with your application code */
-	int brightness = 0;
+	volatile unsigned int brightness = 0;
+	data[1] = brightness;
     while (1) 
     {
 		PORTE &= ~BIT(1);
 		_delay_us(100);
-		//PORTE |= BIT(1);
+		PORTE |= BIT(1);
 		
+		data[0] = 0;
+		data[1] = brightness;
+		data[2] = 0;
+		
+		is_sending = 1;
 		uart_start_tx();
-		uart_send_char(0x00);
-		
-		uart_send_char(0);
-		uart_send_char(brightness);
-		uart_send_char(0);
-		uart_send_char(0);
-		
-		uart_send_char(0);
-		uart_send_char(255-brightness);
-		uart_send_char(0);
-		uart_send_char(0);
-		
-		for(int i = 0; i < 512/4-2; i++)
+		uart_enable_empty_tx_buffer_interrupt();
+		while(is_sending)
 		{
-			uart_send_char(255);
-			uart_send_char(255);
-			uart_send_char(0);
-			uart_send_char(brightness);
+			wait(1);
 		}
-		
-		//for(int i = 0; i < 512-4; i++)
-		//{
-			//uart_send_char(0);
-		//}
-		uart_stop_tx();
+		is_sending = 0;
 		brightness = (brightness+10 % 256);
 		
-		wait(250);
+		wait(100);
     }
 }
 
