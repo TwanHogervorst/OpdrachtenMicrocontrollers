@@ -24,8 +24,8 @@
 
 int mainChannel = 1;
 int secondChannel = 2;
-bool presetSaveButtonPressed = false;
-bool presetLoadButtonPressed = false;
+volatile bool presetSaveButtonPressed = false;
+volatile bool presetLoadButtonPressed = false;
 
 ISR( INT0_vect ) {
 	mainChannel = loop(mainChannel + 1, 1, 512);
@@ -59,7 +59,7 @@ int main(void)
 {
 	DDRA = 0x00;
 	
-	DDRD = 0xF0;
+	DDRD = 0x00;
 	
 	DDRE = 0xFF;
 	DDRF = 0x00;
@@ -110,15 +110,23 @@ int main(void)
 		if(!mfader_is_moving(secondFader) && !presetLoadButtonPressed)
 			dmx_set(secondChannel, mfader_get_position(secondFader));
 			
-		if(presetLoadButtonPressed){
+		if((PIND & (1 << 4)) && !presetSaveButtonPressed)
+		{
+			dmx_preset_save();
+			presetSaveButtonPressed = true;
+		}
+		else if(presetSaveButtonPressed){
+			presetSaveButtonPressed = false;
+		}
+		
+		if((PIND & (1 << 5)) && !presetLoadButtonPressed)
+		{
 			dmx_preset_load();
 			mfader_set_position(mainFader, dmx_get(mainChannel));
 			mfader_set_position(secondFader, dmx_get(secondChannel));
+			presetLoadButtonPressed = true;
+		}else if(presetLoadButtonPressed){
 			presetLoadButtonPressed = false;
-		}
-		if(presetSaveButtonPressed){
-			dmx_preset_save();
-			presetSaveButtonPressed = false;
 		}
 		
 		dmx_start_send();
