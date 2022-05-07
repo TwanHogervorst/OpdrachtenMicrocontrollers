@@ -187,11 +187,11 @@ char mfader_get_position(mfader_handle_t fader) {
 	// To make the result lineair, we need to devide in different sections
 	//   to scale differently for each section
 	
-	if(fader->currentPos < 30) {
+	if(fader->currentPos < 50) {
 		// Do nothing, return 0
 	}
 	else if(fader->currentPos <= 657) {
-		result = (char) map(fader->currentPos, 30, 657, 0, 192);
+		result = (char) map(fader->currentPos, 50, 657, 0, 192);
 	}
 	else if(fader->currentPos <= 970) {
 		result = (char) map(fader->currentPos, 658, 970, 193, 255);

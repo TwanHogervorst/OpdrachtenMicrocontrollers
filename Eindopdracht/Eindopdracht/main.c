@@ -22,23 +22,35 @@
 #include "serial_seven_segment.h"
 #include "dmx.h"
 
-int mainChannel = 0;
-int secondChannel = 0;
+int mainChannel = 1;
+int secondChannel = 2;
 
 ISR( INT0_vect ) {
-	mainChannel = bound(mainChannel + 1, 0, 3);
+	mainChannel = loop(mainChannel + 1, 1, 512);
+	
+	if(mainChannel == secondChannel)
+		mainChannel = loop(mainChannel + 1, 1, 512);
 }
 
 ISR( INT1_vect ) {
-	mainChannel = bound(mainChannel - 1, 0, 3);
+	mainChannel = loop(mainChannel - 1, 1, 512);
+	
+	if(mainChannel == secondChannel)
+		mainChannel = loop(mainChannel - 1, 1, 512);
 }
 
 ISR( INT2_vect ) {
-	secondChannel = bound(secondChannel + 1, 0, 3);
+	secondChannel = loop(secondChannel + 1, 1, 512);
+	
+	if(secondChannel == mainChannel)
+		secondChannel = loop(secondChannel + 1, 1, 512);
 }
 
 ISR( INT3_vect ) {
-	secondChannel = bound(secondChannel - 1, 0, 3);
+	secondChannel = loop(secondChannel - 1, 1, 512);
+	
+	if(secondChannel == mainChannel)
+		secondChannel = loop(secondChannel - 1, 1, 512);
 }
 
 int main(void)
@@ -78,22 +90,23 @@ int main(void)
     while (1) 
     {
 		if(prevMainChannel != mainChannel) {
-			mfader_set_position(mainFader, dmx_get(1 + mainChannel));
+			mfader_set_position(mainFader, dmx_get(mainChannel));
 			prevMainChannel = mainChannel;
 		}
 		
 		if(prevSecondChannel != secondChannel) {
-			mfader_set_position(secondFader, dmx_get(5 + secondChannel));
+			mfader_set_position(secondFader, dmx_get(secondChannel));
 			prevSecondChannel = secondChannel;
 		}
 		
-		sss_write(mainChannel * 100 + secondChannel);
+		sss_write_upper(mainChannel);
+		sss_write(secondChannel);
 		
 		if(!mfader_is_moving(mainFader))
-			dmx_set(1 + mainChannel, mfader_get_position(mainFader));
+			dmx_set(mainChannel, mfader_get_position(mainFader));
 		
 		if(!mfader_is_moving(secondFader))
-			dmx_set(5 + secondChannel, mfader_get_position(secondFader));
+			dmx_set(secondChannel, mfader_get_position(secondFader));
 		
 		dmx_start_send();
 		
