@@ -6,9 +6,10 @@
  */ 
 
 #include <stdbool.h>
-#include <math.h>
+#include <stdlib.h>
 
 #include "spi.h"
+#include "utils.h"
 
 #include "serial_seven_segment.h"
 
@@ -24,11 +25,14 @@ void sss_display_driver_init() {
 	spi_write_word(SSS_SLAVE_PORT, 0x0A, 0x0F);
 
 	// Register Scan-Limit -> 0x03 (Display digits 0..3)
-	spi_write_word(SSS_SLAVE_PORT, 0x0B, 0x03);
+	spi_write_word(SSS_SLAVE_PORT, 0x0B, 0x07);
 	
 	// Shutdown Register -> 1 (Display On/Normal Operation)
 	spi_write_word(SSS_SLAVE_PORT, 0x0C, 0x01);
 	
+	// Show 0 on all digits
+	sss_write(0);
+	sss_write_upper(0);
 }
 
 void sss_display_on() {
@@ -39,14 +43,16 @@ void sss_display_off() {
 	spi_write_word(SSS_SLAVE_PORT, 0x0C, 0x00); // Shutdown Register -> 0 (Display Off)
 }
 
-void sss_write(int value) {
-	bool isNegative = value < 0;
+void sss_write_offset(int value, int offset) {
+	
+	char isNegative = value < 0;
+	offset = bound(offset, 0, 4);
 	
 	value = abs(value);
 	
 	char thousends = 0;
 	if(!isNegative) {
-		char thousends = value / 1000;
+		thousends = value / 1000;
 		value = value - (thousends * 1000);
 	}
 	
@@ -57,12 +63,15 @@ void sss_write(int value) {
 	
 	char ones = value - (tens * 10);
 	
-	spi_write_word(SSS_SLAVE_PORT, 1, ones);
-	spi_write_word(SSS_SLAVE_PORT, 2, tens);
-	spi_write_word(SSS_SLAVE_PORT, 3, hundreds);
+	spi_write_word(SSS_SLAVE_PORT, offset + 1, ones);
+	spi_write_word(SSS_SLAVE_PORT, offset + 2, tens);
+	spi_write_word(SSS_SLAVE_PORT, offset + 3, hundreds);
 	
-	if(isNegative)
-		spi_write_word(SSS_SLAVE_PORT, 4, 0x0A /* '-' */);
-	else
-		spi_write_word(SSS_SLAVE_PORT, 4, thousends);
+	if (isNegative) 
+	{
+		spi_write_word(SSS_SLAVE_PORT, offset + 4, 0x0A /* '-' */);
+	}
+	else {
+		spi_write_word(SSS_SLAVE_PORT, offset + 4, thousends);
+	}
 }
