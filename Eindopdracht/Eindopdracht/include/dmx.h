@@ -16,4 +16,7 @@ char dmx_get(int channel);
 
 void dmx_start_send();
 
+void dmx_preset_save();
+void dmx_preset_load();
+
 #endif /* DMX_H_ */

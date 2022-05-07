@@ -29,6 +29,8 @@ volatile static int dmxDataIndex = 0;
 
 volatile static bool dmxIsSending = false;
 
+static char presetData[DMX_CHANNEL_COUNT + 1];
+
 #define uart_start_tx() UCSR0B |= BIT(TXEN0)
 #define uart_stop_tx() UCSR0B &= ~BIT(TXEN0)
 
@@ -71,6 +73,7 @@ void dmx_init() {
 	
 	// Set data[0] to 0 (required for DMX)
 	dmxData[0] = 0;
+	presetData[0] = 0;
 	
 	// DMX Requires data pin to be high when idle
 	DDRE |= BIT(1);
@@ -101,4 +104,18 @@ void dmx_start_send() {
 	uart_start_tx();
 	uart_enable_empty_tx_buffer_interrupt();
 	
+}
+
+void dmx_preset_save(){
+	volatile int length = sizeof(presetData) / sizeof(presetData[0]);
+	for(int i = 0; i < length; i++){
+		presetData[i] = dmxData[i];
+	}
+}
+
+void dmx_preset_load(){
+	int length = sizeof(dmxData) / sizeof(dmxData[0]);
+	for(int i = 0; i < length; i++){
+		dmxData[i] = presetData[i];
+	}
 }
