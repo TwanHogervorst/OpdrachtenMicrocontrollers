@@ -31,12 +31,14 @@ volatile static bool dmxIsSending = false;
 
 static char presetData[DMX_CHANNEL_COUNT + 1];
 
-#define uart_start_tx() UCSR0B |= BIT(TXEN0)
-#define uart_stop_tx() UCSR0B &= ~BIT(TXEN0)
+#define uart_start_tx() UCSR0B |= BIT(TXEN0)	//Enables UART sending through toggling a bit in the UCSR register
+#define uart_stop_tx() UCSR0B &= ~BIT(TXEN0)	//Disables UART sending through toggling a bit in the UCSR register
 
 #define uart_enable_empty_tx_buffer_interrupt() UCSR0B |= BIT(UDRIE0)
 #define uart_disable_empty_tx_buffer_interrupt() UCSR0B &= ~BIT(UDRIE0)
 
+//If buffer is empty fill it with data
+//USART0_UDRE interrupt interrupts when the buffer is send and ready to be filled again.
 ISR(USART0_UDRE_vect) {
 	
 	if(!dmxIsSending)
@@ -46,6 +48,7 @@ ISR(USART0_UDRE_vect) {
 	
 	UDR0 = dmxData[dmxDataIndex++];
 	
+	//If all data is send, disable interrupt and stop uart sending
 	if(dmxDataIndex > 512)
 	{
 		uart_disable_empty_tx_buffer_interrupt();
@@ -60,6 +63,7 @@ ISR(USART0_UDRE_vect) {
 void dmx_init() {
 	
 	// Initialize UART
+	//Set baudrate
 	unsigned int ubrr = UART_BAUD_REG_VALUE;
 	UBRR0H = (unsigned char)(ubrr>>8); // baudrate register, hoge byte
 	UBRR0L = (unsigned char)(ubrr); // baudrate register, lage byte
@@ -81,10 +85,12 @@ void dmx_init() {
 	
 }
 
+//Set DMX channel value
 void dmx_set(int channel, char value) {
 	dmxData[bound(channel, 1, DMX_CHANNEL_COUNT)] = value;
 }
 
+//Get DMX channel value
 char dmx_get(int channel) {
 	return dmxData[bound(channel, 1, DMX_CHANNEL_COUNT)];
 }
@@ -107,7 +113,7 @@ void dmx_start_send() {
 }
 
 void dmx_preset_save(){
-	volatile int length = sizeof(presetData) / sizeof(presetData[0]);
+	int length = sizeof(presetData) / sizeof(presetData[0]);
 	for(int i = 0; i < length; i++){
 		presetData[i] = dmxData[i];
 	}

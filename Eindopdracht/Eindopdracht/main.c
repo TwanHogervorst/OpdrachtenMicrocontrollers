@@ -27,6 +27,7 @@ int secondChannel = 2;
 volatile bool presetSaveButtonPressed = false;
 volatile bool presetLoadButtonPressed = false;
 
+//On button D1 (TODO?) press increase the channel of the first fader 
 ISR( INT0_vect ) {
 	mainChannel = loop(mainChannel + 1, 1, 512);
 	
@@ -34,6 +35,7 @@ ISR( INT0_vect ) {
 		mainChannel = loop(mainChannel + 1, 1, 512);
 }
 
+//On button D2 (TODO?) press decrease the channel of the first fader 
 ISR( INT1_vect ) {
 	mainChannel = loop(mainChannel - 1, 1, 512);
 	
@@ -41,6 +43,7 @@ ISR( INT1_vect ) {
 		mainChannel = loop(mainChannel - 1, 1, 512);
 }
 
+//On button D3 (TODO?) press increase the channel of the second fader 
 ISR( INT2_vect ) {
 	secondChannel = loop(secondChannel + 1, 1, 512);
 	
@@ -48,6 +51,7 @@ ISR( INT2_vect ) {
 		secondChannel = loop(secondChannel + 1, 1, 512);
 }
 
+//On button D4 (TODO?) press decrease the channel of the second fader 
 ISR( INT3_vect ) {
 	secondChannel = loop(secondChannel - 1, 1, 512);
 	
@@ -57,20 +61,18 @@ ISR( INT3_vect ) {
 
 int main(void)
 {
-	DDRA = 0x00;
+	DDRD = 0x00;	//Initialize port D to input
 	
-	DDRD = 0x00;
+	DDRE = 0xFF;	//Initialize port E to output
+	DDRF = 0x00;	//Initialize port F to input
 	
-	DDRE = 0xFF;
-	DDRF = 0x00;
-	
-	EICRA = 0b10101010;
-	EIMSK = 0x0F;
+	EICRA = 0b10101010;		//TODO?
+	EIMSK = 0x0F;			//TODO?
 	
 	spi_master_init();
 	sss_display_driver_init();
 	
-	sss_write(0);
+	sss_write(0);	//Write to seven segment display
 	
 	adc_init_pull();
 	adc_enable_irs();
@@ -91,25 +93,30 @@ int main(void)
 	int prevSecondChannel = -1;
     while (1) 
     {
+		//If main fader changed of channel
 		if(prevMainChannel != mainChannel) {
 			mfader_set_position(mainFader, dmx_get(mainChannel));
 			prevMainChannel = mainChannel;
 		}
 		
+		//If second fader changed of channel
 		if(prevSecondChannel != secondChannel) {
 			mfader_set_position(secondFader, dmx_get(secondChannel));
 			prevSecondChannel = secondChannel;
 		}
 		
+		//Write to seven segment display
 		sss_write_upper(mainChannel);
 		sss_write(secondChannel);
 		
+		//Load presets if preset button is pressed and fader isn't moving
 		if(!mfader_is_moving(mainFader) && !presetLoadButtonPressed)
 			dmx_set(mainChannel, mfader_get_position(mainFader));
 		
 		if(!mfader_is_moving(secondFader) && !presetLoadButtonPressed)
 			dmx_set(secondChannel, mfader_get_position(secondFader));
 			
+		//Save presets if preset save button is pressed	
 		if((PIND & (1 << 4)) && !presetSaveButtonPressed)
 		{
 			dmx_preset_save();
@@ -119,6 +126,7 @@ int main(void)
 			presetSaveButtonPressed = false;
 		}
 		
+		//Load presets if preset load button is pressed
 		if((PIND & (1 << 5)) && !presetLoadButtonPressed)
 		{
 			dmx_preset_load();
