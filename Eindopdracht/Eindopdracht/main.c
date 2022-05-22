@@ -114,7 +114,7 @@ int main(void)
 		sss_write_upper(mainChannel);
 		sss_write(secondChannel);
 		
-		//Load presets if preset button is pressed and fader isn't moving
+		// Set the value of the dmx channel if preset button isn't pressed and fader isn't moving to target
 		if(!mfader_is_moving(mainFader) && !presetLoadButtonPressed)
 			dmx_set(mainChannel, mfader_get_position(mainFader));
 		
