@@ -20,7 +20,6 @@ void wait( int ms ) {
 }
 
 ISR( TIMER2_COMP_vect ){
-	//TCNT2 = 0;
 	OCR2 = isOn ? 244 : 146; // 25ms : 15ms
 	PORTD = (!isOn) << 7;
 	isOn = !isOn;
@@ -28,26 +27,17 @@ ISR( TIMER2_COMP_vect ){
 
 // Initialize timer2
 void timer2Init( void ) {
-	//TCNT2 = 0;
 	OCR2 = 146;
-	//TIMSK |= BIT(6);		// T2 overflow interrupt enable
 	TIMSK |= BIT(7);		// T2 compare interrupt enable
 	sei();				// turn_on intr all
 	TCCR2 = 0b00001101;		
 }
 
-
-
-
 int main(void)
 {
 	DDRD |= BIT(7);
-	
 	timer2Init();
-	
 	PORTD |= BIT(7);
-	
-    /* Replace with your application code */
     while (1) 
     {
 		wait(10);
