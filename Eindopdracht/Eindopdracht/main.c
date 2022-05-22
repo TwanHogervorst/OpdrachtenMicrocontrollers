@@ -27,7 +27,7 @@ int secondChannel = 2;
 volatile bool presetSaveButtonPressed = false;
 volatile bool presetLoadButtonPressed = false;
 
-//On button D1 (TODO?) press increase the channel of the first fader 
+//On button D0 press increase the channel of the first fader 
 ISR( INT0_vect ) {
 	mainChannel = loop(mainChannel + 1, 1, 512);
 	
@@ -35,7 +35,7 @@ ISR( INT0_vect ) {
 		mainChannel = loop(mainChannel + 1, 1, 512);
 }
 
-//On button D2 (TODO?) press decrease the channel of the first fader 
+//On button D1 press decrease the channel of the first fader 
 ISR( INT1_vect ) {
 	mainChannel = loop(mainChannel - 1, 1, 512);
 	
@@ -43,7 +43,7 @@ ISR( INT1_vect ) {
 		mainChannel = loop(mainChannel - 1, 1, 512);
 }
 
-//On button D3 (TODO?) press increase the channel of the second fader 
+//On button D2 press increase the channel of the second fader 
 ISR( INT2_vect ) {
 	secondChannel = loop(secondChannel + 1, 1, 512);
 	
@@ -51,7 +51,7 @@ ISR( INT2_vect ) {
 		secondChannel = loop(secondChannel + 1, 1, 512);
 }
 
-//On button D4 (TODO?) press decrease the channel of the second fader 
+//On button D3 press decrease the channel of the second fader 
 ISR( INT3_vect ) {
 	secondChannel = loop(secondChannel - 1, 1, 512);
 	
@@ -66,19 +66,23 @@ int main(void)
 	DDRE = 0xFF;	//Initialize port E to output
 	DDRF = 0x00;	//Initialize port F to input
 	
-	EICRA = 0b10101010;		//TODO?
-	EIMSK = 0x0F;			//TODO?
+	EICRA = 0b10101010;		// Set Interrupts INT0...INT3 falling edge
+	EIMSK = 0x0F;			// Enable Interrupts INT0...INT3
 	
 	spi_master_init();
 	sss_display_driver_init();
 	
-	sss_write(0);	//Write to seven segment display
+	// Show 0 on 7 segment display
+	sss_write(0);
+	sss_write_upper(0);
 	
+	// Init adc as async pull mode
 	adc_init_pull();
 	adc_enable_irs();
 	
 	dmx_init();
 	
+	// Initialize the Timer for pwm signal faders
 	mfader_init_pwm();
 	
 	//Initialize fader 0 on adc-channel zero, positive pin PORTE.2, negative pin PORTE.3
@@ -87,6 +91,7 @@ int main(void)
 	//Initialize fader 1 on adc-channel zero, positive pin PORTE.2, negative pin PORTE.3
 	mfader_handle_t secondFader = mfader_init(1, 1, 6, 7, COMPC);
 	
+	// Start an asynchronous adc conversion
 	adc_start_conversion();
 	
 	int prevMainChannel = -1;
@@ -137,11 +142,14 @@ int main(void)
 			presetLoadButtonPressed = false;
 		}
 		
+		// Start async sending all dmx values to devices
 		dmx_start_send();
 		
 		wait(50);
     }
 	
+	// Free resources of faders
+	// Should never be run
 	mfader_destroy(&mainFader);
 	mfader_destroy(&secondFader);
 }
